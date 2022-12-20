@@ -82,10 +82,10 @@ def interpolation_search(array, item):
     n = len(array)
 
     low = 0
-    high = n
+    high = n-1
 
     while low <= high and array[low] <= item <= array[high]:
-        current_position = low + (item - array[low]) * (high - low) / (array[high] - array[low])
+        current_position = low + (item - array[low]) * (high - low) // (array[high] - array[low])
         current_value = array[current_position]
 
         if current_value == item:

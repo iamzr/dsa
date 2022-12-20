@@ -7,7 +7,7 @@ search_algorithms = [linear_search, binary_search_iterative, interpolation_searc
 
 @pytest.mark.parametrize("algorithm", search_algorithms)
 def test_searching_algorithm_given_valid_input_returns_correct_value(algorithm):
-    array = [1, 3, 4, 6, 5]
+    array = [1, 3, 4, 5, 6]
     element = 4
     expected_result = 2
 
