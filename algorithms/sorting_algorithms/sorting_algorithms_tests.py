@@ -1,6 +1,6 @@
 import pytest
 
-from algorithms.sorting_algorithms.sorting_algorithms import merge_sort, quick_sort
+from python.algorithms.sorting_algorithms.sorting_algorithms import merge_sort, quick_sort
 
 sorting_algorithms = [
     merge_sort,
