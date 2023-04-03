@@ -1,79 +1,82 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class HashTableBase(ABC):
-
-    def add(self, key):
+    def hash_function(self, **kwargs):
         raise NotImplementedError
 
-    def exists(self, key):
+    def add(self, value):
         raise NotImplementedError
 
-    def get(self, key):
+    def exists(self, value):
         raise NotImplementedError
 
-    def remove(self, key):
+    def get(self, value):
         raise NotImplementedError
 
-
-class HashTableWithTrivialMapping(HashTableBase):
-
-    @staticmethod
-    def hash_function(key):
-        return key
-
-    def exists(self, key):
-        return self._table[self.hash_function(key)] == key
-
-    def get(self, key):
-        return self._table[self.hash_function(key)]
-
-    def remove(self, key):
-        self._table[self.hash_function(key)] = None
-
-    def add(self, key):
-        self._table[self.hash_function(key)] = key
+    def remove(self, value):
+        raise NotImplementedError
 
     def __init__(self, size):
         self._table = [None] * size
         self._size = size
 
+class HashTableWithTrivialMapping(HashTableBase):
+
+    @staticmethod
+    def hash_function(value):
+        return value
+
+    def exists(self, value):
+        return self._table[self.hash_function(value)] == value
+
+    def get(self, value):
+        return self._table[self.hash_function(value)]
+
+    def remove(self, value):
+        self._table[self.hash_function(value)] = None
+
+    def add(self, value):
+        self._table[self.hash_function(value)] = value
+
 
 class HashTableWithModuloMapping(HashTableWithTrivialMapping):
-    def hash_function(self, key):
-        return key % self._size
+    def hash_function(self, value):
+        return value % self._size
 
 
-class HashTableWithModuloMappingLinearProbing(HashTableWithModuloMapping):
+class HashTableWithModuloMappingLinearProbing(HashTableBase):
 
-    def add(self, key):
-        counter = 0
-        index = key
-        while self._table[self.hash_function(index)] and counter < self._size:
-            index = index + 1 % self._size
-            counter += 1
+    def hash_function(self, value, offset):
+        return (value + offset) % self._size
 
-        self._table[self.hash_function(index)] = key
+    def add(self, value):
+        offset = 0
+        while self._table[self.hash_function(value, offset)] is not None and offset < self._size:
+            offset += 1
 
-    def _get(self, key):
-        counter = 0
-        index = key
-        while self._table[self.hash_function(index)] != key and counter < self._size:
-            index = index + 1 % self._size
-            counter += 1
-        return key, index
+        self._table[self.hash_function(value, offset)] = value
 
-    def get(self, key):
-        return self._get(key)[0]
+    def _get(self, value):
+        offset = 0
+        while self._table[self.hash_function(value, offset)] != value and offset < self._size:
+            offset += 1
+        return value, offset
 
-    def remove(self, key):
-        index = self._get(key)[1]
-        self._table[self.hash_function(index)] = None
+    def get(self, value):
+        return self._get(value)[0]
 
-    def exists(self, key):
-        index = key
-        counter = 0
-        while self._table[self.hash_function(index)] and counter < self._size:
-            index = index + 1 % self._size
-            counter += 1
-        return self._table[self.hash_function(key)] == key
+    def remove(self, value):
+        offset = self._get(value)[1]
+        self._table[self.hash_function(value, offset)] = None
+
+    def exists(self, value):
+        index = value
+        offset = 0
+        while self._table[self.hash_function(index, offset)] != value and offset < self._size:
+            offset += 1
+
+        if offset >= self._size:
+            return False
+
+        return self._table[self.hash_function(index, offset)] == value
